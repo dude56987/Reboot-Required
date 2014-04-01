@@ -1,0 +1,10 @@
+Package: reboot-required
+Version: 0.1
+Section: admin
+Maintainer: Carl J Smith <feedback@hacker-haven.com>
+Installed-Size: 44
+Priority: optional
+Architecture: all
+Depends: python (>=2.7)
+Description: Checks if a reboot is required.
+ Checks if a reboot is required and informs users logged into the system with a notification.

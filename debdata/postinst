@@ -1,0 +1,1 @@
+link /usr/bin/reboot-required /etc/cron.daily/reboot-required;
