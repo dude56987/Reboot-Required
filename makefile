@@ -3,14 +3,10 @@ show:
 	
 run:
 	python reboot-required.py
-install:
-	sudo apt-get install transmission-gtk --assume-yes
-	sudo cp reboot-required.py /usr/bin/reboot-required
-	sudo chmod +x /usr/bin/reboot-required
-	sudo link /usr/bin/reboot-required /etc/cron.daily/reboot-required
+install: build
+	sudo gdebi --non-interactive reboot-required_UNSTABLE.deb
 uninstall:
-	sudo rm /usr/bin/reboot-required
-	sudo rm /etc/cron.daily/reboot-required
+	sudo apt-get purge reboot-required
 installed-size:
 	du -sx --exclude DEBIAN ./debian/
 build:
@@ -26,12 +22,17 @@ build-deb:
 	cp -vf reboot-required.py ./debian/usr/bin/reboot-required
 	# make the program executable
 	chmod +x ./debian/usr/bin/reboot-required
-	# start the md5sums file
-	md5sum ./debian/usr/bin/reboot-required > ./debian/DEBIAN/md5sums
-	# create md5 sums for all the config files transfered over
+	# Create the md5sums file
+	find ./debian/ -type f -print0 | xargs -0 md5sum > ./debian/DEBIAN/md5sums
+	# cut filenames of extra junk
 	sed -i.bak 's/\.\/debian\///g' ./debian/DEBIAN/md5sums
+	sed -i.bak 's/\\n*DEBIAN*\\n//g' ./debian/DEBIAN/md5sums
+	sed -i.bak 's/\\n*DEBIAN*//g' ./debian/DEBIAN/md5sums
 	rm -v ./debian/DEBIAN/md5sums.bak
+	# figure out the package size	
+	du -sx --exclude DEBIAN ./debian/ > Installed-Size.txt
 	cp -rv debdata/. debian/DEBIAN/
+	# build the package
 	dpkg-deb --build debian
 	cp -v debian.deb reboot-required_UNSTABLE.deb
 	rm -v debian.deb
