@@ -38,7 +38,6 @@ if exists('/var/run/reboot-required'):
 			loggedIn=loggedIn.split(' ')
 			# remove duplicate entries in the list
 			loggedIn=list(set(loggedIn))
-			print(loggedIn)
 		else:
 			# the user check command failed
 			exit()
