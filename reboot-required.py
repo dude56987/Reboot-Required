@@ -1,7 +1,7 @@
 #! /usr/bin/python
 ########################################################################
 # Informs the users if there are updates that require a reboot.
-# Copyright (C) 2014  Carl J Smith
+# Copyright (C) 2016  Carl J Smith
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,11 +28,31 @@ if exists('/var/run/reboot-required'):
 		print 'This will message all users on the system!'
 		exit()
 	else:
+		# grab a list of users logged into the system
+		loggedIn=popen('users').read()
+		# if the users command executed successfully
+		if loggedIn != -1:
+			# strip the endline junk
+			loggedIn=loggedIn.strip()
+			# split the list based on spaces into an array
+			loggedIn=loggedIn.split(' ')
+			# remove duplicate entries in the list
+			loggedIn=list(set(loggedIn))
+			print(loggedIn)
+		else:
+			# the user check command failed
+			exit()
+		# array to store commands to be launched 
 		restartPayload = []
+		# compare logged in users to users home directory
 		for user in listdir('/home'):
-				if popen('ps -u '+user+' | grep init').read().find('init') != -1:
-					# create a command to notify each user who is logged in
-					restartPayload.append("su "+user+' bash -c \'notify-send --urgency=critical --icon=reboot-notifier "Please reboot the system :D\nReboot required to finish installing updates!"\'')
+			# if user is logged into the system
+			if user in loggedIn:
+				# create a command to notify each user who is logged in using notify-send
+				# send the output of this command to /dev/null in order to prevent garbage
+				# output
+				restartPayload.append("su -p "+user+' -c \'notify-send --urgency=critical --icon=reboot-notifier "Please reboot the system :D\nReboot required to finish installing updates!"\' > /dev/null')
+		# for each item in the generated payload
 		for item in restartPayload:
-			# launch each of the commands created previously
+			# launch the command
 			system(item)
